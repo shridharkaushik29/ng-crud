@@ -1,0 +1,23 @@
+{
+  "name": "ng-crud",
+  "authors": [
+    "shridharkaushik29 <shridharkaushik29@gmail.com>"
+  ],
+  "description": "",
+  "main": "ng-crud.js",
+  "keywords": [
+    "crud"
+  ],
+  "license": "MIT",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "ng-smooth-submit": "*"
+  }
+}
