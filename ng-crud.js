@@ -1,36 +1,5 @@
 angular.module("ngCrud", ["ngSmoothSubmit"])
 
-        .run([
-            '$injector',
-            '$crud',
-            function ($injector, $crud) {
-
-            }
-        ])
-
-        .factory("$user", [
-            '$rootScope',
-            '$crud',
-            function ($rootScope, $crud) {
-
-                var config = {
-
-                };
-
-                var service = {};
-
-//                service.
-
-                service.login = function (options) {
-                    $crud.send("login", options.params).then(function (data) {
-                        $rootScope.$user = data.user;
-                    });
-                }
-
-                return service;
-            }
-        ])
-
         .provider('$crud', [function () {
 
                 var defaultConfig = {
