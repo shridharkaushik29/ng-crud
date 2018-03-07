@@ -28,6 +28,7 @@ angular.module("ngCrud", ["ngSmoothSubmit"])
                         var $mdDialog;
                         var $mdToast;
                         var $files;
+                        var $modal;
 
                         if ($injector.has("$route")) {
                             $route = $injector.get("$route");
@@ -47,6 +48,10 @@ angular.module("ngCrud", ["ngSmoothSubmit"])
 
                         if ($injector.has("$mdToast")) {
                             $mdToast = $injector.get("$mdToast");
+                        }
+
+                        if ($injector.has("$modal")) {
+                            $modal = $injector.get("$modal");
                         }
 
                         var service = {};
@@ -112,15 +117,7 @@ angular.module("ngCrud", ["ngSmoothSubmit"])
                         }
 
                         service.create = function (action, params, options) {
-                            return $q(function (resolve, reject) {
-                                if (options && options.dialog) {
-                                    service.dialog(options.dialog).then(resolve, reject);
-                                } else {
-                                    resolve();
-                                }
-                            }).then(function () {
-                                return service.send("create/" + action, params, options);
-                            })
+                            return service.send("create/" + action, params, options);
                         }
 
                         service.retrieve = function (action, params, options) {
@@ -131,9 +128,7 @@ angular.module("ngCrud", ["ngSmoothSubmit"])
                             config.notify = false;
                             return service.send("retrieve/" + action, params, config).then(function (data) {
                                 if (config.scope) {
-                                    var main = data[config.main || action];
-                                    var mainScopeKey = config.mainScopeKey || config.main || action;
-                                    $parse(mainScopeKey).assign(config.scope, main);
+                                    _.merge(config.scope, data);
                                 }
                                 return data;
                             });
@@ -242,7 +237,11 @@ angular.module("ngCrud", ["ngSmoothSubmit"])
 
                             var preset = defaultConfig.dialogPresets[presetName];
 
-                            if ($mdDialog) {
+                            if ($modal) {
+                                var options = _.merge({}, preset, config);
+                                var dialog = $modal.open(options);
+                                return dialog;
+                            } else if ($mdDialog) {
                                 var options = _.merge({}, preset, config, {
                                     fullscreen: true,
                                     scopes: {
@@ -257,7 +256,11 @@ angular.module("ngCrud", ["ngSmoothSubmit"])
                                 options.scope.hide = $mdDialog.hide;
                                 options.scope.cancel = $mdDialog.cancel;
                                 options.clickOutsideToClose = true;
-                                return $mdDialog.show(options);
+
+                                var dialog = $mdDialog.show(options);
+                                dialog.cancel = $mdDialog.cancel;
+                                dialog.hide = $mdDialog.hide;
+                                return dialog;
                             } else {
                                 console.error("No supported dialog plugins found for dialog");
                             }
