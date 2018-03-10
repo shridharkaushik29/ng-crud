@@ -128,7 +128,9 @@ angular.module("ngCrud", ["ngSmoothSubmit"])
                             config.notify = false;
                             return service.send("retrieve/" + action, params, config).then(function (data) {
                                 if (config.scope) {
-                                    _.merge(config.scope, data);
+                                    _.forEach(data, function (value, key) {
+                                        config.scope[key] = value;
+                                    })
                                 }
                                 return data;
                             });
