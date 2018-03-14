@@ -21,8 +21,7 @@ angular.module("ngCrud", ["ngSmoothSubmit"])
                     '$injector',
                     '$location',
                     '$rootScope',
-                    '$parse',
-                    function ($smoothSubmit, $q, $injector, $location, $rootScope, $parse) {
+                    function ($smoothSubmit, $q, $injector, $location, $rootScope) {
                         var $state;
                         var $route;
                         var $mdDialog;
@@ -281,8 +280,223 @@ angular.module("ngCrud", ["ngSmoothSubmit"])
                             defaultConfig.dialogPresets[name] = preset;
                         }
 
+                        service.login = function (params, config) {
+                            $injector.get('$user').login(params, config);
+                        }
+
+                        service.logout = function (params, config) {
+                            $injector.get('$user').logout(params, config);
+                        }
+
                         return service;
                     }
                 ]
+            }
+        ])
+
+
+        .factory("$user", [
+            '$rootScope',
+            '$parse',
+            '$crud',
+            '$injector',
+            function ($rootScope, $parse, $crud, $injector) {
+
+                var rootScopeVariable = "$user";
+                var service = {};
+                var $transitions;
+                if ($injector.has('$transitions')) {
+                    $transitions = $injector.get("$transitions");
+                }
+
+                service.retrieve = function () {
+                    return $crud.retrieve("user").then(function (data) {
+                        var user = data.user;
+                        service.set(user);
+                        return user;
+                    })
+                }
+
+                service.get = function () {
+                    return $rootScope.$eval(rootScopeVariable);
+                }
+
+                service.set = function (user) {
+                    $parse(rootScopeVariable).assign($rootScope, user);
+                }
+
+                service.protectRoutes = function (config) {
+                    var options = _.merge({
+                        defaultState: "profile",
+                        loginState: "login"
+                    }, config);
+
+                    if ($transitions) {
+                        var $stateParams = $injector.get('$stateParams');
+                        $transitions.onEnter({}, function (transition) {
+                            $rootScope.progress = true;
+                            if (transition.to().loggedIn === true || transition.to().loggedOut === true) {
+                                return service.retrieve().then(function (user) {
+                                    if (transition.to().loggedOut === true && user) {
+                                        var to = $stateParams.goto || options.defaultState;
+                                        return transition.router.stateService.target(to, {}, {
+                                            location: 'replace'
+                                        });
+                                    } else if (!user && transition.to().loggedIn === true) {
+                                        return transition.router.stateService.target(options.loginState, {
+                                            goto: transition.to().name
+                                        });
+                                    }
+                                }, function (error) {
+                                    return transition.router.stateService.target(options.loginState, {
+                                        goto: transition.to().name
+                                    });
+                                });
+                            }
+                        })
+                    }
+                }
+
+                service.login = function (params, config) {
+                    var options = _.merge({
+                        request: {
+                            reload: true
+                        }
+                    }, config)
+                    return $crud.send("login", params, options.request).then(function (data) {
+                        if (data.user !== undefined) {
+                            service.set(data.user);
+                        }
+                        return data;
+                    });
+                }
+
+                service.logout = function (params, config) {
+                    var options = _.merge({
+                        request: {
+                            reload: true
+                        }
+                    }, config)
+                    return $crud.send("logout", params, options.request).then(function (data) {
+                        service.remove();
+                        return data;
+                    });
+                }
+
+                service.remove = function () {
+                    $parse(rootScopeVariable).assign(undefined, $rootScope);
+                }
+
+                return service;
+            }
+        ])
+
+        .directive("logout", [
+            '$user',
+            function ($user) {
+                return {
+                    link: function ($scope, element) {
+                        element.on("click", function () {
+                            $user.logout().then(function (data) {
+                                $scope.$eval(element.attr("on-logout"), {
+                                    $data: data
+                                })
+                            });
+                        })
+                    }
+                }
+            }
+        ])
+
+        .directive("login", [
+            '$user',
+            function ($user) {
+                return {
+                    link: function ($scope, element) {
+                        element.on("login", function () {
+                            $user.logout().then(function (data) {
+                                $scope.$eval(element.attr("on-logout"), {
+                                    $data: data
+                                })
+                            });
+                        })
+                    }
+                }
+            }
+        ])
+
+        .directive("dialogTrigger", [
+            '$crud',
+            function ($crud) {
+                return {
+                    restrict: "A",
+                    link: function ($scope, element) {
+
+                        var showDialog = function (preset, options) {
+                            $crud.dialog(preset, options).then(function (data) {
+                                $scope.$eval(element.attr("dialog-resolve"), {
+                                    $data: data
+                                });
+                            }, function (data) {
+                                $scope.$eval(element.attr("dialog-reject"), {
+                                    $data: data
+                                });
+                            })
+                        }
+
+                        element.on("click", function (e) {
+                            var dialogPreset = element.attr("dialog-preset");
+                            var dialogOptions = $scope.$eval(element.attr("dialog-options")) || {};
+                            var dialogScopes = $scope.$eval(element.attr("dialog-scopes"));
+                            dialogOptions.targetEvent = e;
+                            dialogOptions.scopes = dialogScopes;
+                            if (dialogPreset) {
+                                showDialog(dialogPreset, dialogOptions)
+                            }
+                        })
+                    }
+                }
+            }
+        ])
+
+        .directive("crudRemove", [
+            '$crud',
+            function ($crud) {
+                return {
+                    link: function ($scope, element) {
+                        var removeModel = function (url, params) {
+                            $crud.remove(url, params).then(function (data) {
+                                $scope.$eval(element.attr("on-resolve"), {
+                                    $data: data
+                                });
+                            }, function (data) {
+                                $scope.$eval(element.attr("on-reject"), {
+                                    $data: data
+                                });
+                            })
+                        }
+
+                        element.on("click", function (e) {
+                            var confirm = $scope.$eval(element.attr("confirm"));
+                            var url = element.attr("crud-remove");
+                            var params = $scope.$eval(element.attr("params"));
+                            if (confirm) {
+                                var confirmOptions = _.merge({}, confirm);
+                                if (_.isFunction(confirm)) {
+                                    confirm(confirmOptions).then(function () {
+                                        removeModel(url, params);
+                                    })
+                                } else {
+                                    confirmOptions.targetEvent = e;
+                                    $crud.confirm(confirmOptions).then(function () {
+                                        removeModel(url, params);
+                                    })
+                                }
+                            } else {
+                                removeModel(url, params);
+                            }
+                        })
+                    }
+                }
             }
         ])
