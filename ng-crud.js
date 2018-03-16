@@ -7,6 +7,7 @@ angular.module("ngCrud", ["ngSmoothSubmit"])
                         requestType: "$post",
                         reload: false,
                         checkDataType: true,
+                        progressModel: "progress",
                         notify: {
                             action: "Close"
                         }
@@ -21,7 +22,8 @@ angular.module("ngCrud", ["ngSmoothSubmit"])
                     '$injector',
                     '$location',
                     '$rootScope',
-                    function ($smoothSubmit, $q, $injector, $location, $rootScope) {
+                    '$parse',
+                    function ($smoothSubmit, $q, $injector, $location, $rootScope, $parse) {
                         var $state;
                         var $route;
                         var $mdDialog;
@@ -59,13 +61,27 @@ angular.module("ngCrud", ["ngSmoothSubmit"])
                             defaultConfig.request.baseUrl = url;
                         }
 
+                        service.setProgressIndicator = function (model) {
+                            defaultConfig.request.progressModel = model;
+                        }
+
                         service.send = function (url, params, config) {
 
                             var options = _.merge({}, defaultConfig.request, config);
 
                             var dp = $q.defer();
 
+                            var progressModel = options.progressModel;
+
+                            if (progressModel) {
+                                $parse(progressModel).assign($rootScope, true);
+                            }
+
                             $smoothSubmit[options.requestType](options.baseUrl + url, params).then(function (data) {
+
+                                if (progressModel) {
+                                    $parse(progressModel).assign($rootScope, false);
+                                }
 
                                 if (options.notify) {
                                     service.notify(_.merge({}, options.notify, data));
@@ -102,6 +118,9 @@ angular.module("ngCrud", ["ngSmoothSubmit"])
                                 }
                             }, function (error) {
                                 console.warn(error);
+                                if (progressModel) {
+                                    $parse(progressModel).assign($rootScope, false);
+                                }
                                 var data = {
                                     type: "error",
                                     message: error.status + " : " + error.statusText
@@ -243,13 +262,13 @@ angular.module("ngCrud", ["ngSmoothSubmit"])
                                 var dialog = $modal.open(options);
                                 return dialog;
                             } else if ($mdDialog) {
-                                var options = _.merge({}, preset, config, {
+                                var options = _.merge({
                                     fullscreen: true,
                                     scopes: {
                                         hide: $mdDialog.hide,
                                         cancel: $mdDialog.cancel
                                     }
-                                });
+                                }, preset, config);
                                 if (!options.scope) {
                                     options.scope = $rootScope.$new();
                                 }
@@ -278,6 +297,7 @@ angular.module("ngCrud", ["ngSmoothSubmit"])
 
                         service.setDialogPreset = function (name, preset) {
                             defaultConfig.dialogPresets[name] = preset;
+                            return service;
                         }
 
                         service.login = function (params, config) {
@@ -334,7 +354,6 @@ angular.module("ngCrud", ["ngSmoothSubmit"])
                     if ($transitions) {
                         var $stateParams = $injector.get('$stateParams');
                         $transitions.onEnter({}, function (transition) {
-                            $rootScope.progress = true;
                             if (transition.to().loggedIn === true || transition.to().loggedOut === true) {
                                 return service.retrieve().then(function (user) {
                                     if (transition.to().loggedOut === true && user) {
@@ -397,23 +416,6 @@ angular.module("ngCrud", ["ngSmoothSubmit"])
                 return {
                     link: function ($scope, element) {
                         element.on("click", function () {
-                            $user.logout().then(function (data) {
-                                $scope.$eval(element.attr("on-logout"), {
-                                    $data: data
-                                })
-                            });
-                        })
-                    }
-                }
-            }
-        ])
-
-        .directive("login", [
-            '$user',
-            function ($user) {
-                return {
-                    link: function ($scope, element) {
-                        element.on("login", function () {
                             $user.logout().then(function (data) {
                                 $scope.$eval(element.attr("on-logout"), {
                                     $data: data
