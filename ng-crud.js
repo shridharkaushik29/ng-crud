@@ -16,6 +16,33 @@ angular.module("ngCrud", ["ngSmoothSubmit"])
                     models: {}
                 };
 
+                var setBaseUrl = function (url) {
+                    defaultConfig.request.baseUrl = url;
+                }
+
+                var setProgressIndicator = function (model) {
+                    defaultConfig.request.progressModel = model;
+                }
+
+                var setDialogPreset = function (name, preset) {
+                    defaultConfig.dialogPresets[name] = preset;
+                }
+
+                this.setBaseUrl = function (url) {
+                    setBaseUrl(url);
+                    return this;
+                }
+
+                this.setDialogPreset = function (name, preset) {
+                    setDialogPreset(name, preset)
+                    return this;
+                }
+
+                this.setDialogService = function (name) {
+                    defaultConfig.dialogService = name;
+                    return this;
+                }
+
                 this.$get = [
                     '$smoothSubmit',
                     '$q',
@@ -57,13 +84,11 @@ angular.module("ngCrud", ["ngSmoothSubmit"])
 
                         var service = {};
 
-                        service.setBaseUrl = function (url) {
-                            defaultConfig.request.baseUrl = url;
-                        }
+                        service.setBaseUrl = setBaseUrl;
 
-                        service.setProgressIndicator = function (model) {
-                            defaultConfig.request.progressModel = model;
-                        }
+                        service.setDialogPreset = setDialogPreset;
+
+                        service.setProgressIndicator = setProgressIndicator;
 
                         service.send = function (url, params, config) {
 
@@ -256,48 +281,44 @@ angular.module("ngCrud", ["ngSmoothSubmit"])
                         service.dialog = function (presetName, config) {
 
                             var preset = defaultConfig.dialogPresets[presetName];
+                            var options = _.merge({}, preset, config);
+                            var serviceName = options.dialogService || options.service || defaultConfig.dialogService;
+                            var service;
 
-                            if ($modal) {
-                                var options = _.merge({}, preset, config);
-                                var dialog = $modal.open(options);
-                                return dialog;
-                            } else if ($mdDialog) {
-                                var options = _.merge({
-                                    fullscreen: true,
-                                    scopes: {
-                                        hide: $mdDialog.hide,
-                                        cancel: $mdDialog.cancel
-                                    }
-                                }, preset, config);
-                                if (!options.scope) {
-                                    options.scope = $rootScope.$new();
+                            if (!serviceName) {
+                                if ($injector.has("$mdDialog")) {
+                                    serviceName = "$mdDialog";
+                                } else {
+                                    throw "No supported dialog service found for dialog";
                                 }
-                                options.scope = _.merge(options.scope, options.scopes);
-                                options.scope.hide = $mdDialog.hide;
-                                options.scope.cancel = $mdDialog.cancel;
-                                options.clickOutsideToClose = true;
-
-                                var dialog = $mdDialog.show(options);
-                                dialog.cancel = $mdDialog.cancel;
-                                dialog.hide = $mdDialog.hide;
-                                return dialog;
-                            } else {
-                                console.error("No supported dialog plugins found for dialog");
                             }
+
+                            if (serviceName === '$mdDialog') {
+                                options.clickOutsideToClose = true;
+                            }
+
+                            service = $injector.get(serviceName);
+
+                            if (!options.scope) {
+                                options.scope = $rootScope.$new();
+                            }
+
+                            options.scope = _.merge(options.scope, options.scopes);
+
+                            options.scope.hide = service.hide;
+                            options.scope.cancel = service.cancel;
+
+                            var dialog = service.show(options);
+
+                            dialog.cancel = service.cancel;
+                            dialog.hide = service.hide;
+
+                            return dialog;
 
                         }
 
                         service.chooseFile = function (options) {
-                            if ($files) {
-                                return $files.choose(options);
-                            } else {
-                                console.error("$files is not available");
-                            }
-                        }
-
-                        service.setDialogPreset = function (name, preset) {
-                            defaultConfig.dialogPresets[name] = preset;
-                            return service;
+                            return $injector.get('$files').choose(options);
                         }
 
                         service.login = function (params, config) {
