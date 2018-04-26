@@ -184,7 +184,9 @@ angular.module("ngCrud", ["ngSmoothSubmit"])
                         }
 
                         service.remove = function (action, params, options) {
-                            return service.send("delete/" + action, params, options);
+                            var config = {}
+                            config.requestType = "$delete";
+                            return service.send("delete/" + action, params, config);
                         }
 
                         service['delete'] = service.remove;
