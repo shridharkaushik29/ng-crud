@@ -1,0 +1,27 @@
+{
+  "name": "angular-crud-sk",
+  "version": "1.1.1",
+  "description": "CRUD Operations in AngularJS",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shridharkaushik29/ng-crud.git"
+  },
+  "keywords": [
+    "crud",
+    "ng-crud",
+    "angular-crud"
+  ],
+  "author": "Shridhar Kaushik",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shridharkaushik29/ng-crud/issues"
+  },
+  "homepage": "https://github.com/shridharkaushik29/ng-crud#readme",
+    "dependencies": {
+        "ng-smooth-submit": "*"
+    }
+}

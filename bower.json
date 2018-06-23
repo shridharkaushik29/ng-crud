@@ -1,14 +1,16 @@
 {
   "name": "angular-crud",
+  "description": "CRUD Operations in AngularJS",
+  "main": "./dist/main.js",
   "authors": [
-    "shridharkaushik29 <shridharkaushik29@gmail.com>"
+    "Shridhar Kaushik"
   ],
-  "description": "",
-  "main": "ng-crud.js",
+  "license": "ISC",
   "keywords": [
-    "crud"
+    "crud",
+    "ng-crud",
+    "angular-crud"
   ],
-  "license": "MIT",
   "homepage": "",
   "ignore": [
     "**/.*",
@@ -18,6 +20,6 @@
     "tests"
   ],
   "dependencies": {
-    "ng-smooth-submit": "*"
-  }
+        "ng-smooth-submit": "*"
+    }
 }
