@@ -5,7 +5,7 @@ dialog as dialogDriver,
         alert as alertDriver,
         confirm as confirmDriver,
         prompt as promptDriver
-} from "./drivers";
+        } from "./drivers";
 import dialogPresets from "./dialog-presets";
 
 module
@@ -247,7 +247,16 @@ module
 
                             _.merge(config, options);
 
-                            return this.send("delete/" + action, params, config);
+                            $q((resolve, reject) => {
+                                if (config.confirm) {
+                                    this.confirm(config.confirm).then(resolve, reject)
+                                } else {
+                                    resolve(true);
+                                }
+                            }).then(() => {
+                                return this.send("delete/" + action, params, config);
+                            })
+
                         }
 
                         service.delete = service.remove;
