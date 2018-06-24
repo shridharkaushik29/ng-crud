@@ -184,7 +184,7 @@ module
                                 }
 
                                 if (options.notify) {
-                                    service.notify(_({}).merge(options.notify, data));
+                                    service.notify(_.merge({}, options.notify, data));
                                 }
 
                                 dp.reject(data);
@@ -247,7 +247,7 @@ module
 
                             _.merge(config, options);
 
-                            $q((resolve, reject) => {
+                            return $q((resolve, reject) => {
                                 if (config.confirm) {
                                     this.confirm(config.confirm).then(resolve, reject)
                                 } else {
