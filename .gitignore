@@ -48,5 +48,4 @@ Temporary Items
 /bower_components/
 /nbproject/private/
 *.properties
-src/crud.js
 nbproject/project.xml
