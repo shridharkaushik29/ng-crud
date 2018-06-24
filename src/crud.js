@@ -5,7 +5,7 @@ dialog as dialogDriver,
         alert as alertDriver,
         confirm as confirmDriver,
         prompt as promptDriver
-        } from "./drivers";
+} from "./drivers";
 import dialogPresets from "./dialog-presets";
 
 module
@@ -15,10 +15,13 @@ module
                 var defaultConfig = {
                     request: {
                         progressModel: "progress",
+                        baseUrl: null,
+                        preferRemote: false,
                         notify: {
                             action: "Close"
                         }
                     },
+                    dataServices: {},
                     dialogPresets: dialogPresets,
                     drivers: {
                         notify: notifyDriver,
@@ -51,8 +54,13 @@ module
                     return this;
                 }
 
-                this.setDialogService = function (name) {
-                    defaultConfig.dialogService = name;
+                this.setDriver = function (name, value) {
+                    defaultConfig.drivers[name] = value;
+                    return this;
+                }
+
+                this.dataService = function (url, value) {
+                    defaultConfig.dataServices[url] = value;
                     return this;
                 }
 
@@ -113,69 +121,75 @@ module
 
                             var dp = $q.defer();
 
-                            if (options.baseUrl) {
 
-                                $smoothSubmit[options.requestType](options.baseUrl + url, params, options.smoothSubmitOptions).then(function (data) {
+                            $q((resolve, reject) => {
+                                if (defaultConfig.dataServices[url] && !options.preferRemote) {
+                                    $injector.invoke(defaultConfig.dataServices[url], this, {
+                                        $params: params,
+                                        $options: options
+                                    }).then(resolve, reject);
+                                } else {
+                                    $smoothSubmit[options.requestType](options.baseUrl + url, params, options.smoothSubmitOptions).then(resolve, reject)
+                                }
+                            }).then(data => {
 
-                                    if (progressModel) {
-                                        $parse(progressModel).assign($rootScope, false);
-                                    }
+                                if (progressModel) {
+                                    $parse(progressModel).assign($rootScope, false);
+                                }
 
-                                    if (options.notify) {
-                                        service.notify(_.merge({}, options.notify, data));
-                                    }
+                                if (options.notify) {
+                                    service.notify(_.merge({}, options.notify, data));
+                                }
 
-                                    if (options.checkDataType) {
+                                if (options.checkDataType) {
 
-                                        if (data.type === 'success') {
+                                    if (data.type === 'success') {
 
-                                            if (options.reload) {
-                                                if ($state) {
-                                                    $state.reload();
-                                                } else if ($route) {
-                                                    $route.reload();
-                                                } else {
-                                                    window.location.reload();
-                                                }
-                                            } else if (options.goto) {
-                                                if ($state) {
-                                                    $state.go(options.goto);
-                                                } else if ($route) {
-                                                    $location.url(options.goto);
-                                                } else {
-                                                    window.location = options.goto;
-                                                }
+                                        if (options.reload) {
+                                            if ($state) {
+                                                $state.reload();
+                                            } else if ($route) {
+                                                $route.reload();
+                                            } else {
+                                                window.location.reload();
                                             }
-
-                                            dp.resolve(data);
-
-                                        } else {
-                                            dp.notify(data);
+                                        } else if (options.goto) {
+                                            if ($state) {
+                                                $state.go(options.goto);
+                                            } else if ($route) {
+                                                $location.url(options.goto);
+                                            } else {
+                                                window.location = options.goto;
+                                            }
                                         }
-                                    } else {
+
                                         dp.resolve(data);
+
+                                    } else {
+                                        dp.notify(data);
                                     }
-                                }, function (error) {
+                                } else {
+                                    dp.resolve(data);
+                                }
+                            }, error => {
 
-                                    if (progressModel) {
-                                        $parse(progressModel).assign($rootScope, false);
-                                    }
+                                if (progressModel) {
+                                    $parse(progressModel).assign($rootScope, false);
+                                }
 
-                                    var data = {
-                                        type: "error",
-                                        message: error.status + " : " + error.statusText
-                                    }
+                                var data = {
+                                    type: "error",
+                                    message: error.status + " : " + error.statusText,
+                                    error: error
+                                }
 
-                                    if (options.notify) {
-                                        service.notify(_({}).merge(options.notify, data));
-                                    }
+                                if (options.notify) {
+                                    service.notify(_({}).merge(options.notify, data));
+                                }
 
-                                    dp.reject(data);
-                                })
+                                dp.reject(data);
+                            })
 
-                            } else if (options.remoteService) {
-
-                            }
 
                             return dp.promise;
                         }

@@ -21,7 +21,10 @@
     "url": "https://github.com/shridharkaushik29/ng-crud/issues"
   },
   "homepage": "https://github.com/shridharkaushik29/ng-crud#readme",
-    "dependencies": {
-        "ng-smooth-submit": "*"
-    }
+  "dependencies": {
+    "ng-smooth-submit": "*"
+  },
+  "devDependencies": {
+    "webpack-cli": "^3.0.8"
+  }
 }
