@@ -45,7 +45,6 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
-/bower_components/
-/nbproject/private/
-*.properties
-nbproject/project.xml
+/bower_components
+/nbproject
+/node_modules
