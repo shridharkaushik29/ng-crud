@@ -287,7 +287,7 @@ module
 
                         service.dialog = function (presetName, config) {
 
-                            var preset = defaultConfig.dialogPresets[presetName];
+                            var preset = _.clone(defaultConfig.dialogPresets[presetName]);
 
                             if (_.isArray(preset)) {
                                 preset = $injector.invoke(preset, this, {
