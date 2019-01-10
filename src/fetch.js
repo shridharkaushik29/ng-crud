@@ -11,9 +11,9 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var angular_crud_1 = require("./angular-crud");
 var angular = require("angular");
 var _ = require("lodash");
+exports.default = 'ngCrudFetch';
 var isFile = function (value) { return (value instanceof File || value instanceof Blob); };
 var mergeData = function (formData, data, key) {
     if (_.isObject(data) && !isFile(data)) {
@@ -35,47 +35,6 @@ URLSearchParams.prototype.merge = function (data) {
     mergeData(this, data);
     return this;
 };
-// export function chooseFile(config: RequestOptions): RequestOptions {
-//
-//     const {callbacks} = config;
-//
-//     callbacks.chooseFile = (options: ChooseFileOptions): Promise<File | File[]> => {
-//         const {multiple, accept} = options;
-//         let input: HTMLInputElement = document.querySelector('.sk-file-input');
-//
-//         if (!input) {
-//             input = document.createElement('input');
-//             input.type = "file";
-//             input.accept = _.isArray(accept) ? accept.join(",") : accept;
-//             input.multiple = multiple;
-//             input.style.display = "none";
-//             input.className = "sk-file-input";
-//             document.querySelector("body").appendChild(input);
-//         }
-//
-//         input.click();
-//         return new Promise(resolve => {
-//             const changeHandler = e => {
-//                 const files = e.currentTarget.files;
-//                 const filesArray = [];
-//                 _.each(files, file => {
-//                     file.url = URL.createObjectURL(file);
-//                     filesArray.push(file)
-//                 });
-//                 if (multiple) {
-//                     resolve(filesArray);
-//                 } else {
-//                     resolve(files[0]);
-//                 }
-//             }
-//
-//             input.addEventListener('change', changeHandler)
-//
-//         })
-//     }
-//
-//     return config;
-// }
 angular.module("ngCrudFetch", [
     'ngCrud'
 ])
@@ -90,7 +49,7 @@ angular.module("ngCrudFetch", [
                 function ($q, $options, $injector) {
                     var _this = this;
                     return $q(function (resolve, reject) {
-                        var config = __assign({ checkDataType: true, notify: true }, angular_crud_1.CrudService.$config, $options);
+                        var config = __assign({ checkDataType: true, notify: true }, _this.$config, $options);
                         var data = config.data, _a = config.callbacks, callbacks = _a === void 0 ? {} : _a, _b = config.method, method = _b === void 0 ? "get" : _b, _c = config.baseUrl, baseUrl = _c === void 0 ? '' : _c, url = config.url, redirectTo = config.redirectTo, _d = config.showProgress, showProgress = _d === void 0 ? true : _d, _e = config.prefix, prefix = _e === void 0 ? "" : _e, _f = config.suffix, suffix = _f === void 0 ? "" : _f, _g = config.extension, extension = _g === void 0 ? "" : _g, checkDataType = config.checkDataType;
                         var reloadPage = config.reload;
                         var loading = callbacks.loading, reload = callbacks.reload, redirect = callbacks.redirect, checkSuccess = callbacks.checkSuccess, notify = callbacks.notify;

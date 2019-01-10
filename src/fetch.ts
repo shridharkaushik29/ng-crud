@@ -1,8 +1,10 @@
-import {CrudProvider, CrudService, RequestOptions} from "./angular-crud";
+import {CrudProvider, RequestOptions} from "./angular-crud";
 import * as angular from "angular";
 import {IQService} from "angular";
 import * as _ from "lodash";
 import IInjectorService = angular.auto.IInjectorService;
+
+export default 'ngCrudFetch';
 
 declare global {
     interface FormData {
@@ -42,48 +44,6 @@ URLSearchParams.prototype.merge = function (data: Object) {
     return this;
 }
 
-// export function chooseFile(config: RequestOptions): RequestOptions {
-//
-//     const {callbacks} = config;
-//
-//     callbacks.chooseFile = (options: ChooseFileOptions): Promise<File | File[]> => {
-//         const {multiple, accept} = options;
-//         let input: HTMLInputElement = document.querySelector('.sk-file-input');
-//
-//         if (!input) {
-//             input = document.createElement('input');
-//             input.type = "file";
-//             input.accept = _.isArray(accept) ? accept.join(",") : accept;
-//             input.multiple = multiple;
-//             input.style.display = "none";
-//             input.className = "sk-file-input";
-//             document.querySelector("body").appendChild(input);
-//         }
-//
-//         input.click();
-//         return new Promise(resolve => {
-//             const changeHandler = e => {
-//                 const files = e.currentTarget.files;
-//                 const filesArray = [];
-//                 _.each(files, file => {
-//                     file.url = URL.createObjectURL(file);
-//                     filesArray.push(file)
-//                 });
-//                 if (multiple) {
-//                     resolve(filesArray);
-//                 } else {
-//                     resolve(files[0]);
-//                 }
-//             }
-//
-//             input.addEventListener('change', changeHandler)
-//
-//         })
-//     }
-//
-//     return config;
-// }
-
 angular.module("ngCrudFetch", [
     'ngCrud'
 ])
@@ -101,10 +61,11 @@ angular.module("ngCrudFetch", [
                     function ($q: IQService, $options: RequestOptions, $injector: IInjectorService) {
 
                         return $q((resolve, reject) => {
+
                             const config = {
                                 checkDataType: true,
                                 notify: true,
-                                ...CrudService.$config,
+                                ...this.$config,
                                 ...$options,
                             }
 

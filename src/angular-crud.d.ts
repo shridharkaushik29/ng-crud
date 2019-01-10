@@ -1,4 +1,4 @@
-import { ChooseFileOptions } from "@crud/core/src/index";
+import * as angular from "angular";
 import IInjectorService = angular.auto.IInjectorService;
 import { Injectable, IPromise } from "angular";
 export interface RequestOptions {
@@ -30,16 +30,22 @@ export interface RequestOptions {
     method?: "post" | "get" | "put" | "delete" | string;
     ajaxOptions?: any;
 }
+export interface ChooseFileOptions {
+    accept?: string | string[];
+    multiple?: boolean;
+}
+declare const _default: "ngCrud";
+export default _default;
 export declare class CrudService {
     private $injector;
-    static $dialogPresets: any;
-    static $config: RequestOptions;
+    $config: RequestOptions;
     constructor($injector: IInjectorService);
     send($options: RequestOptions): IPromise<any>;
     create(url: string, data?: any, options?: RequestOptions): IPromise<any>;
-    update(url: string, data?: any, options?: RequestOptions): IPromise<any>;
-    delete(url: string, data?: any, options?: RequestOptions): IPromise<any>;
-    retrieve(url: string, data?: any, options?: RequestOptions): IPromise<any>;
+    update(url: string, data?: any, options?: RequestOptions): angular.IPromise<any>;
+    delete(url: string, data?: any, options?: RequestOptions): angular.IPromise<any>;
+    remove: (url: string, data?: any, options?: RequestOptions) => angular.IPromise<any>;
+    retrieve(url: string, data?: any, options?: RequestOptions): angular.IPromise<any>;
     alert($options?: any): IPromise<any>;
     confirm($options?: any): IPromise<boolean>;
     prompt($options?: any): IPromise<any>;
@@ -50,5 +56,8 @@ export declare class CrudService {
 export declare class CrudProvider {
     config(callback: (config: RequestOptions) => RequestOptions): this;
     setDialogPreset(name: string, options: any): this;
+    setBaseUrl(url: string): this;
+    setProgressIndicator(model: string): this;
+    getDialogPreset(name: string): any;
     $get: (string | (($injector: IInjectorService) => CrudService))[];
 }

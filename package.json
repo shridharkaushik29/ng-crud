@@ -1,10 +1,12 @@
 {
   "name": "angular-crud-sk",
-  "version": "1.1.8",
+  "version": "1.1.9",
   "description": "CRUD Operations in AngularJS",
-  "main": "src/index.js",
+  "main": "src/angular-crud.js",
   "scripts": {
-    "watch": "tsc --watch"
+    "watch": "tsc --watch",
+    "dev": "webpack --env.mode=development --env.filename=angular-crud && webpack --env.mode=development --env.filename=angular-material && webpack --env.mode=development --env.filename=fetch",
+    "build": "webpack --env.filename=angular-crud && webpack --env.filename=angular-material && webpack --env.filename=fetch"
   },
   "repository": {
     "type": "git",
@@ -21,12 +23,14 @@
     "url": "https://github.com/shridharkaushik29/ng-crud/issues"
   },
   "homepage": "https://github.com/shridharkaushik29/ng-crud#readme",
-  "dependencies": {
-    "@crud/core": "^1.0.9"
-  },
+  "dependencies": {},
   "devDependencies": {
+    "angular-animate": "^1.7.5",
+    "angular-aria": "^1.7.5",
+    "angular-messages": "^1.7.5",
     "@types/angular": "^1.6.53",
     "@types/angular-material": "^1.1.62",
+    "@types/jquery": "^3.3.29",
     "@types/lodash": "^4.14.119",
     "ts-loader": "^5.3.3",
     "typescript": "^3.2.2",
@@ -35,10 +39,8 @@
   },
   "peerDependencies": {
     "angular": "^1.7.5",
-    "angular-animate": "^1.7.5",
-    "angular-aria": "^1.7.5",
     "angular-material": "^1.1.12",
-    "angular-messages": "^1.7.5",
+    "jquery": "^3.3.1",
     "lodash": "^4.17.11"
   }
 }

@@ -2,7 +2,7 @@ const webpack = require("webpack");
 const path = require("path");
 
 module.exports = env => {
-    const {mode, filename} = env
+    const {mode = "production", filename} = env
     if (!filename)
         throw "Please enter a filename"
     return {
@@ -32,5 +32,8 @@ module.exports = env => {
             angular: "angular",
             lodash: "_"
         },
+        resolve: {
+            extensions: ['.js', '.ts']
+        }
     }
 }

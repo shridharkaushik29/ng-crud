@@ -1,5 +1,4 @@
-import {module} from "./module";
-import {ChooseFileOptions} from "@crud/core/src/index";
+import * as angular from "angular";
 import IInjectorService = angular.auto.IInjectorService;
 import {Injectable, IPromise, IQService} from "angular";
 
@@ -33,72 +32,121 @@ export interface RequestOptions {
     ajaxOptions?: any
 }
 
-export class CrudService {
+export interface ChooseFileOptions {
+    accept?: string | string[],
+    multiple?: boolean
+}
 
-    static $dialogPresets: any = {}
+export default 'ngCrud'
 
-    static $config: RequestOptions = {
-        baseUrl: "",
-        callbacks: {
-            notify: [
-                '$options',
-                '$q',
-                ($options: any = {}, $q: IQService) => $q((resolve, reject) => {
-                    alert($options.message)
+let dialogPresets = {}
+let fileInput: HTMLInputElement;
+let $config: RequestOptions = {
+    baseUrl: "",
+    callbacks: {
+        notify: [
+            '$options',
+            '$q',
+            ($options: any = {}, $q: IQService) => $q((resolve, reject) => {
+                alert($options.message)
+                resolve()
+            })
+        ],
+        alert: [
+            '$options',
+            '$q',
+            ($options: any = {}, $q: IQService) => $q((resolve, reject) => {
+                alert(`${$options.title} - ${$options.message}`)
+                resolve()
+            })
+        ],
+        confirm: [
+            '$options',
+            '$q',
+            ($options: any = {}, $q: IQService) => $q((resolve, reject) => {
+                const {title = "Are you sure?"} = $options
+                if (confirm(title)) {
                     resolve()
-                })
-            ],
-            alert: [
-                '$options',
-                '$q',
-                ($options: any = {}, $q: IQService) => $q((resolve, reject) => {
-                    alert(`${$options.title} - ${$options.message}`)
-                    resolve()
-                })
-            ],
-            confirm: [
-                '$options',
-                '$q',
-                ($options: any = {}, $q: IQService) => $q((resolve, reject) => {
-                    const {title = "Are you sure?"} = $options
-                    if (confirm(title)) {
-                        resolve()
-                    } else {
-                        reject()
+                } else {
+                    reject()
+                }
+            })
+        ],
+        prompt: [
+            '$options',
+            '$q',
+            ($options: any = {}, $q: IQService) => $q((resolve, reject) => {
+                const {title = "Type here..."} = $options
+                const value = prompt(title)
+                if (value !== null) {
+                    resolve(value)
+                } else {
+                    reject()
+                }
+            })
+        ],
+        checkSuccess: [
+            '$data',
+            ($data: any) => {
+                if ($data.type === 'success') {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        ],
+        chooseFile: [
+            '$q',
+            '$options',
+            ($q: IQService, $options: ChooseFileOptions) => $q(resolve => {
+                const {multiple, accept} = $options;
+
+                const changeHandler = e => {
+                    const files = e.currentTarget.files || [];
+                    const filesArray = [];
+
+                    for (let file of files) {
+                        file.url = URL.createObjectURL(file);
+                        filesArray.push(file)
                     }
-                })
-            ],
-            prompt: [
-                '$options',
-                '$q',
-                ($options: any = {}, $q: IQService) => $q((resolve, reject) => {
-                    const {title = "Type here..."} = $options
-                    const value = prompt(title)
-                    if (value !== null) {
-                        resolve(value)
+
+                    if (multiple) {
+                        resolve(filesArray);
                     } else {
-                        reject()
-                    }
-                })
-            ],
-            checkSuccess: [
-                '$data',
-                ($data: any) => {
-                    if ($data.type === 'success') {
-                        return true;
-                    } else {
-                        return false;
+                        resolve(files[0]);
                     }
                 }
-            ]
-        }
+
+                if (!fileInput) {
+                    fileInput = document.createElement('input');
+                    fileInput.type = "file";
+                    fileInput.style.display = "none";
+                    document.querySelector("body").appendChild(fileInput);
+                }
+
+                fileInput.accept = angular.isArray(accept) ? accept.join(",") : accept;
+                fileInput.multiple = multiple;
+                fileInput.value = '';
+
+                fileInput.click();
+
+                fileInput.onchange = changeHandler
+
+            })
+        ]
     }
+}
+
+export class CrudService {
+
+    $config: RequestOptions = $config
 
     constructor(private $injector: IInjectorService) {
+
     }
 
     send($options: RequestOptions): IPromise<any> {
-        return this.$injector.invoke(CrudService.$config.callbacks.sendRequest, this, {
+        return this.$injector.invoke($config.callbacks.sendRequest, this, {
             $options
         });
     }
@@ -133,6 +181,8 @@ export class CrudService {
         })
     }
 
+    remove = this.delete
+
     retrieve(url: string, data?: any, options?: RequestOptions) {
         return this.send({
             method: "get",
@@ -146,38 +196,38 @@ export class CrudService {
     }
 
     alert($options?: any): IPromise<any> {
-        return this.$injector.invoke(CrudService.$config.callbacks.alert, this, {
+        return this.$injector.invoke($config.callbacks.alert, this, {
             $options
         });
     }
 
     confirm($options?: any): IPromise<boolean> {
-        return this.$injector.invoke(CrudService.$config.callbacks.confirm, this, {
+        return this.$injector.invoke($config.callbacks.confirm, this, {
             $options
         });
     }
 
     prompt($options?: any): IPromise<any> {
-        return this.$injector.invoke(CrudService.$config.callbacks.prompt, this, {
+        return this.$injector.invoke($config.callbacks.prompt, this, {
             $options
         });
     }
 
     dialog($dialogName: string, $options?: any): IPromise<any> {
-        return this.$injector.invoke(CrudService.$config.callbacks.dialog, this, {
+        return this.$injector.invoke($config.callbacks.dialog, this, {
             $dialogName,
             $options
         });
     }
 
     notify($options?: any): IPromise<any> {
-        return this.$injector.invoke(CrudService.$config.callbacks.notify, this, {
+        return this.$injector.invoke($config.callbacks.notify, this, {
             $options
         });
     }
 
     chooseFile($options: ChooseFileOptions = {}): IPromise<File | File[]> {
-        return this.$injector.invoke(CrudService.$config.callbacks.prompt, this, {
+        return this.$injector.invoke($config.callbacks.chooseFile, this, {
             $options
         });
     }
@@ -186,13 +236,33 @@ export class CrudService {
 export class CrudProvider {
 
     config(callback: (config: RequestOptions) => RequestOptions): this {
-        CrudService.$config = callback.apply(this, [{...CrudService.$config}]);
+        $config = callback.apply(this, [{...$config}]);
         return this;
     }
 
     setDialogPreset(name: string, options: any): this {
-        CrudService.$dialogPresets[name] = options
+        dialogPresets[name] = options
         return this;
+    }
+
+    setBaseUrl(url: string): this {
+        $config.baseUrl = url;
+        return this;
+    }
+
+    setProgressIndicator(model: string): this {
+        $config.callbacks.loading = [
+            '$rootScope',
+            '$value',
+            ($rootScope, $value) => {
+                $rootScope[model] = $value
+            }
+        ]
+        return this;
+    }
+
+    getDialogPreset(name: string): any {
+        return dialogPresets[name];
     }
 
     $get = [
@@ -204,5 +274,6 @@ export class CrudProvider {
 
 }
 
-module
+angular.module("ngCrud", [])
+
     .provider("$crud", CrudProvider)

@@ -7,8 +7,11 @@
           href="https://cdnjs.cloudflare.com/ajax/libs/angular-material/1.1.12/angular-material.min.css"/>
 </head>
 <body>
-<md-button ng-click="openDialog()">
+<md-button dialog-trigger dialog-preset="login">
     Open Dialog
+</md-button>
+<md-button ng-click="openDialog($event)">
+    Confirm
 </md-button>
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.5/angular.min.js"></script>
@@ -17,12 +20,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.5/angular-animate.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-material/1.1.12/angular-material.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.min.js"></script>
-<script src="../angular-crud.js"></script>
-<script src="../angular-material.js"></script>
-<script src="../fetch.js"></script>
+<script src="../angular-crud.min.js"></script>
+<script src="../angular-material.min.js"></script>
+<script src="../fetch.min.js"></script>
 <script>
     angular.module("app", [
-        'ngMaterialCrud',
+        'ngCrudMaterial',
         'ngCrudFetch'
     ])
 
@@ -37,7 +40,7 @@
                     })
 
                     .setDialogPreset("login", {
-                        template: 'Login'
+                        template: '<md-button ng-click="hide()">Close</md-button>'
                     })
             }
         ])
@@ -49,15 +52,21 @@
                 // $crud.prompt({title: "asdfas"}).then(function (value) {
                 //     console.log(value)
                 // })
+                $rootScope.openDialog = function (e) {
 
-                $rootScope.openDialog = function () {
-
-                    $crud.create("login-token", {
-                        username: "admin",
-                        password: 1235
+                    $crud.confirm({
+                        targetEvent: e
+                    }).then(() => {
+                        console.log(12)
                     })
 
-                    $crud.dialog("login")
+                    // $crud.chooseFile().then(function (file) {
+                    //     $crud.remove("login-token", {
+                    //         username: "admin",
+                    //         password: 1235
+                    //     })
+                    //     console.log(file)
+                    // })
                 }
             }
         ])

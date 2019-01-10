@@ -1,7 +1,7 @@
 {
   "name": "angular-crud",
   "description": "CRUD Operations in AngularJS",
-  "main": "./dist/main.js",
+  "main": "./angular-crud.js",
   "authors": [
     "Shridhar Kaushik"
   ],
@@ -20,6 +20,9 @@
     "tests"
   ],
   "dependencies": {
-        "ng-smooth-submit": "*"
-    }
+    "jquery": "*",
+    "lodash": "*",
+    "angular": "*",
+    "angular-material": "*"
+  }
 }
