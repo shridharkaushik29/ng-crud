@@ -2,9 +2,9 @@
   "name": "angular-crud-sk",
   "version": "1.1.8",
   "description": "CRUD Operations in AngularJS",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "watch": "tsc --watch"
   },
   "repository": {
     "type": "git",
@@ -22,9 +22,23 @@
   },
   "homepage": "https://github.com/shridharkaushik29/ng-crud#readme",
   "dependencies": {
-    "ng-smooth-submit": "*"
+    "@crud/core": "^1.0.9"
   },
   "devDependencies": {
-    "webpack-cli": "^3.0.8"
+    "@types/angular": "^1.6.53",
+    "@types/angular-material": "^1.1.62",
+    "@types/lodash": "^4.14.119",
+    "ts-loader": "^5.3.3",
+    "typescript": "^3.2.2",
+    "webpack": "^4.28.1",
+    "webpack-cli": "^3.2.1"
+  },
+  "peerDependencies": {
+    "angular": "^1.7.5",
+    "angular-animate": "^1.7.5",
+    "angular-aria": "^1.7.5",
+    "angular-material": "^1.1.12",
+    "angular-messages": "^1.7.5",
+    "lodash": "^4.17.11"
   }
 }

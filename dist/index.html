@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html ng-app="app" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/angular-material/1.1.12/angular-material.min.css"/>
+</head>
+<body>
+<md-button ng-click="openDialog()">
+    Open Dialog
+</md-button>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.5/angular.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.5/angular-messages.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.5/angular-aria.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.5/angular-animate.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-material/1.1.12/angular-material.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.min.js"></script>
+<script src="../angular-crud.js"></script>
+<script src="../angular-material.js"></script>
+<script src="../fetch.js"></script>
+<script>
+    angular.module("app", [
+        'ngMaterialCrud',
+        'ngCrudFetch'
+    ])
+
+        .config([
+            '$crudProvider',
+            function ($crudProvider) {
+                $crudProvider
+
+                    .config(function (config) {
+                        config.baseUrl = "http://localhost/video-website/public/services/welcome/"
+                        return config;
+                    })
+
+                    .setDialogPreset("login", {
+                        template: 'Login'
+                    })
+            }
+        ])
+
+        .run([
+            '$crud',
+            '$rootScope',
+            function ($crud, $rootScope) {
+                // $crud.prompt({title: "asdfas"}).then(function (value) {
+                //     console.log(value)
+                // })
+
+                $rootScope.openDialog = function () {
+
+                    $crud.create("login-token", {
+                        username: "admin",
+                        password: 1235
+                    })
+
+                    $crud.dialog("login")
+                }
+            }
+        ])
+</script>
+</html>
