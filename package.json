@@ -1,5 +1,5 @@
 {
-  "name": "angular-crud-sk",
+  "name": "@crud/angularjs",
   "version": "2.0.0",
   "description": "CRUD Operations in AngularJS",
   "main": "src/angular-crud.js",
