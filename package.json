@@ -1,6 +1,6 @@
 {
   "name": "angular-crud-sk",
-  "version": "1.1.9",
+  "version": "2.0.0",
   "description": "CRUD Operations in AngularJS",
   "main": "src/angular-crud.js",
   "scripts": {
