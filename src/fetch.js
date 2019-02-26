@@ -66,7 +66,7 @@ angular.module("ngCrudFetch", [
                                 resolve(response);
                             }
                             else if (checkSuccess) {
-                                if (checkDataType && $injector.invoke(checkSuccess, _this, { $data: false })) {
+                                if (checkDataType && $injector.invoke(checkSuccess, _this, { $data: response })) {
                                     resolve(response);
                                     // @ts-ignore
                                     (redirectTo && redirect && redirect(redirectTo, response)) || (reloadPage && reload && reload());
