@@ -69,7 +69,20 @@ angular.module("ngCrudFetch", [
                                 ...$options,
                             }
 
-                            const {data, callbacks = {}, method = "get", baseUrl = '', url, redirectTo, showProgress = true, prefix = "", suffix = "", extension = "", checkDataType} = config;
+                            const {
+                                data,
+                                callbacks = {},
+                                method = "get",
+                                baseUrl = '',
+                                url,
+                                redirectTo,
+                                showProgress = true,
+                                prefix = "",
+                                suffix = "",
+                                extension = "",
+                                checkDataType
+                            } = config;
+
                             const reloadPage = config.reload;
                             const {loading, reload, redirect, checkSuccess, notify} = callbacks;
 
@@ -103,7 +116,7 @@ angular.module("ngCrudFetch", [
                             }
 
                             const errorCallback = (error) => {
-                                showProgress && loading && $injector.invoke(notify, this, {$value: false});
+                                showProgress && loading && $injector.invoke(loading, this, {$value: false});
                                 const notification: any = {
                                     type: "error"
                                 }
@@ -133,14 +146,14 @@ angular.module("ngCrudFetch", [
                                 fullUrl += "?" + params;
                             }
 
-                            showProgress && loading && $injector.invoke(notify, this, {$value: true});
+                            showProgress && loading && $injector.invoke(loading, this, {$value: true});
 
                             fetch(fullUrl, ajaxOptions).then(response => {
                                 return new Promise((resolve, reject) => {
                                     if (response.status === 200) {
                                         resolve(response.text())
                                     } else {
-                                        reject(response);
+                                        reject(response)
                                     }
                                 })
                             }).then(successCallback, errorCallback)

@@ -85,7 +85,7 @@ angular.module("ngCrudFetch", [
                             }
                         };
                         var errorCallback = function (error) {
-                            showProgress && loading && $injector.invoke(notify, _this, { $value: false });
+                            showProgress && loading && $injector.invoke(loading, _this, { $value: false });
                             var notification = {
                                 type: "error"
                             };
@@ -107,7 +107,7 @@ angular.module("ngCrudFetch", [
                             var params = new URLSearchParams().merge(data);
                             fullUrl += "?" + params;
                         }
-                        showProgress && loading && $injector.invoke(notify, _this, { $value: true });
+                        showProgress && loading && $injector.invoke(loading, _this, { $value: true });
                         fetch(fullUrl, ajaxOptions).then(function (response) {
                             return new Promise(function (resolve, reject) {
                                 if (response.status === 200) {
