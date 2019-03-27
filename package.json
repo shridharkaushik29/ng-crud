@@ -1,6 +1,6 @@
 {
   "name": "@crud/angularjs",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "CRUD Operations in AngularJS",
   "main": "src/angular-crud.js",
   "scripts": {
@@ -25,13 +25,13 @@
   "homepage": "https://github.com/shridharkaushik29/ng-crud#readme",
   "dependencies": {},
   "devDependencies": {
-    "angular-animate": "^1.7.5",
-    "angular-aria": "^1.7.5",
-    "angular-messages": "^1.7.5",
     "@types/angular": "^1.6.53",
     "@types/angular-material": "^1.1.62",
     "@types/jquery": "^3.3.29",
     "@types/lodash": "^4.14.119",
+    "angular-animate": "^1.7.5",
+    "angular-aria": "^1.7.5",
+    "angular-messages": "^1.7.5",
     "ts-loader": "^5.3.3",
     "typescript": "^3.2.2",
     "webpack": "^4.28.1",
